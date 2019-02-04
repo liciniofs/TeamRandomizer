@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>UrbanFut5 - Play ball!!!</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Compiled and minified CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<link rel="stylesheet" href="assets/css/players.css">
+
+</head>
+
+<body>
+	<div class="col s7">
+		<img class="responsive-img urban-logo" src="assets/images/logo_Urban_Fut_5.png" width="250">
+	</div>
+	<div class="container row" id="app">
+		<input class="js-players" type="text" v-model="playerList" placeholder="Place comma separated list"></input>
+		<!-- <ol>
+			<li v-for="team in teams">
+				{{team.member}}
+			</li>
+		</ol> -->
+		<div class="card-panel" v-bind:class="{ green: hasPlayers, 'deep-orange darken-2': noPlayers }">
+			<h6 class="white-text text-darken-2">{{returnPlayerTeams}}</h6>
+		</div>
+		<table class="striped col s5 left" style="margin-right: 20px">
+			<thead>
+				<tr>
+					<th>Team One</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="member in teamOne">
+					<td>{{member.name}}</td>
+				</tr>
+			</tbody>
+		</table>
+		<table class="striped col s5 right">
+			<thead>
+				<tr>
+					<th>Team Two</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="member in teamTwo">
+					<td>{{member.name}}</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="clearfix"></div>
+		<button class="waves-effect waves-light btn" style="margin-top: 25px;" v-on:click="saveTeam">Save</button>	
+	</div>
+
+	<!-- Compiled and minified JavaScript -->
+	<script src="https://www.gstatic.com/firebasejs/5.8.2/firebase.js"></script>
+	
+	<script>
+		// Initialize Firebase
+		var config = {
+			apiKey: "AIzaSyB2Eh1p19ZRq4n7lkv-9O6PIA0GSwYBR70",
+			authDomain: "urbanfut5teams.firebaseapp.com",
+			databaseURL: "https://urbanfut5teams.firebaseio.com",
+			projectId: "urbanfut5teams",
+			storageBucket: "",
+			messagingSenderId: "127428497165"
+		};
+		firebase.initializeApp(config);
+		var db = firebase.firestore();
+	</script>
+	<script
+	src="https://code.jquery.com/jquery-3.3.1.min.js"
+	integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+	crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<script src="assets/app.js"></script>
+</body>
+
+</html>
