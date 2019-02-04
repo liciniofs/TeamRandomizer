@@ -1,48 +1,42 @@
 var app = new Vue({
-  el: '#app',
+  el  : '#app',
   data: {
     playerList: '',
-    teams: [
+    teams     : [
       { member: 'one,two,three,four,five' },
       { member: 'one,two,three,four,five' }
     ],
-    teamOne: [
-      { name: 'one' },
-      { name: 'two' },
-      { name: 'three' },
-      { name: 'four' },
-      { name: 'five' }
-    ],
-    teamTwo: [
-      { name: 'one' },
-      { name: 'two' },
-      { name: 'three' },
-      { name: 'four' },
-      { name: 'five' }
-    ],
+    teamOne       : [],
+    teamTwo       : [],
     newPlayerArray: [{}],
-    hasPlayers: false,
-    noPlayers: true
+    hasPlayers    : false,
+    noPlayers     : true
   },
   computed: {
     returnPlayerTeams: function () {
       var players = this.playerList.split(',');
 
       if (players.length < 10) {
-		  return 'Not enough players!';
+        this.noPlayers = true;
+        return 'Not enough players!';
       }
+      
+      this.noPlayers  = false;
+      this.hasPlayers = true;
 
-      this.noPlayers = false;
-	  this.hasPlayers = true;
+      this.teamOne = [];
+      this.teamTwo = [];
 
 	  var newPlayerArray = this.randomize(players);
 
       var i; var j = 0;
       for (i = 0; i < newPlayerArray.length; i++) {
         if (i < 5) {
-          this.$set(this.teamOne[i], 'name', newPlayerArray[i]);
+          // this.$set(this.teamOne[i], 'name', newPlayerArray[i]);
+          this.teamOne.push({name: newPlayerArray[i]});
         } else {
-          this.$set(this.teamTwo[j], 'name', newPlayerArray[i]);
+          // this.$set(this.teamTwo[j], 'name', newPlayerArray[i]);
+          this.teamTwo.push({name: newPlayerArray[i]});
           j++;
         }
       }
@@ -57,13 +51,13 @@ var app = new Vue({
       // While there remain elements to shuffle...
       while (currentIndex !== 0) {
         // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
+        randomIndex   = Math.floor(Math.random() * currentIndex);
         currentIndex -= 1;
 
         // And swap it with the current element.
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
+              temporaryValue = array[currentIndex];
+        array[currentIndex]  = array[randomIndex];
+        array[randomIndex]   = temporaryValue;
       }
 
       return array;
@@ -76,7 +70,7 @@ var app = new Vue({
 	  timestamp = '_' + timestamp;
 
 	  db.collection('teams').doc(timestamp).set({
-        data: new Date(),
+        data    : new Date(),
         equipa_a: this.teamOne,
         equipa_b: this.teamTwo
       })
