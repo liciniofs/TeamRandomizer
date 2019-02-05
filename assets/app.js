@@ -1,16 +1,19 @@
 var app = new Vue({
-  el  : '#app',
+  el: '#app',
   data: {
     playerList: '',
-    teams     : [
+    teams: [
       { member: 'one,two,three,four,five' },
       { member: 'one,two,three,four,five' }
     ],
-    teamOne       : [],
-    teamTwo       : [],
-    newPlayerArray: [{}],
-    hasPlayers    : false,
-    noPlayers     : true,
+    teamOne: [],
+    teamTwo: [],
+    newPlayerArray: [],
+    hasPlayers: false,
+    noPlayers: true,
+    originalQueue: '',
+    randomQueue: '',
+    dateOfGame: $('.js-datepicker').val(),
     currentTeams: {}
   },
   computed: {
@@ -19,30 +22,38 @@ var app = new Vue({
 
       if (players.length < 10) {
         this.noPlayers = true;
-        return 'Not enough players!';
+        return 'Não há jogadores suficientes!';
       }
-      
-      this.noPlayers  = false;
+
+      this.noPlayers = false;
       this.hasPlayers = true;
 
       this.teamOne = [];
       this.teamTwo = [];
 
-	  var newPlayerArray = this.randomize(players);
+      this.newPlayerArray = this.randomize(players);
+
+      this.randomQueue = this.newPlayerArray.join();
 
       var i; var j = 0;
-      for (i = 0; i < newPlayerArray.length; i++) {
+      for (i = 0; i < this.newPlayerArray.length; i++) {
         if (i < 5) {
           // this.$set(this.teamOne[i], 'name', newPlayerArray[i]);
-          this.teamOne.push({name: newPlayerArray[i]});
+          this.teamOne.push({ name: this.newPlayerArray[i] });
         } else {
-          // this.$set(this.teamTwo[j], 'name', newPlayerArray[i]);
-          this.teamTwo.push({name: newPlayerArray[i]});
+          // this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
+          this.teamTwo.push({ name: this.newPlayerArray[i] });
           j++;
         }
       }
 
-      return newPlayerArray.join();
+      return this.newPlayerArray.join();
+    },
+    playerListDisabled: function () {
+      return this.newPlayerArray.length === 10;
+    },
+    dateDisabled: function () {
+      return this.dateOfGame.length > 0;
     }
   },
   methods: {
@@ -52,60 +63,73 @@ var app = new Vue({
       // While there remain elements to shuffle...
       while (currentIndex !== 0) {
         // Pick a remaining element...
-        randomIndex   = Math.floor(Math.random() * currentIndex);
+        randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex -= 1;
 
         // And swap it with the current element.
         temporaryValue = array[currentIndex];
-        array[currentIndex]  = array[randomIndex];
-        array[randomIndex]   = temporaryValue;
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
       }
 
       return array;
     },
     saveTeam: function () {
-      var data = { equipa_a: this.teamone, equipa_b: this.teamTwo, data: new Date() };
-
+      this.dateOfGame = $('.js-datepicker').val();
       var timestamp = new Date().getTime();
 
       timestamp = timestamp.toString();
 
       db.collection('teams').doc(timestamp).set({
-          data    : new Date(),
-          equipa_a: this.teamOne,
-          equipa_b: this.teamTwo
+        dateOfSubmission: new Date(),
+        dateOfGame: this.dateOfGame,
+        originalQueue: this.playerList,
+        randomQueue: this.randomQueue,
+        equipaA: this.teamOne,
+        equipaB: this.teamTwo
+      })
+        .then(function () {
+          console.log('Document successfully written!');
         })
-          .then(function () {
-            console.log('Document successfully written!');
-          })
-          .catch(function (error) {
-            console.error('Error writing document: ', error);
-          });
-    },
+        .catch(function (error) {
+          console.error('Error writing document: ', error);
+        });
+    }
   },
-  mounted: function() {
+  mounted: function () {
+    var _this = this;
+    var timestamp = new Date().getTime();
+    timestamp = timestamp.toString();
+
     this.$nextTick(function () {
-      var _this = this;
-      var timestamp = new Date().getTime();
-      timestamp = timestamp.toString();
+      $(document).ready(function () {
+        $('.js-datepicker').datepicker({
+          format: 'dd / mmm / yyyy'
+        }
+        );
+      });
 
-      // var teamsRef = db.collection("teams").doc("1549323694542");
-      // var teamsRef = db.collection("teams");
-                // [START order_and_limit]
-      // teamsRef.orderBy("data").limit(2);
+      db.collection('teams').get().then(function (querySnapshot) {
+        querySnapshot.forEach(function (doc) {
+          var dateOfGame = doc.data().dateOfGame;
+          var today = new Date();
 
-      // console.log(teamsRef);
-      
-      
-      db.collection("teams").get().then(function(querySnapshot) {
-      //   docRef.get().then(function(doc) {
-      //     console.log(doc.data().equipa_a);
-          
-        querySnapshot.forEach(function(doc) {
+          dateOfGame = new Date(dateOfGame);
+          console.log(dateOfGame);
+          console.log(today);
+
+          if (today > dateOfGame) {
+            return;
+          }
+
           _this.teamOne = doc.data().equipa_a;
           _this.teamTwo = doc.data().equipa_b;
+          _this.dateOfGame = doc.data().dateOfGame;
+          _this.teamTwo = doc.data().equipa_b;
+          _this.playerList = doc.data().originalQueue;
+          _this.randomQueue = doc.data().randomQueue;
         });
-      }); 
-    })
+      });
+    });
   }
 });

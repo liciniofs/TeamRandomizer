@@ -12,12 +12,14 @@
 
 </head>
 
-<body>
+<body class="row">
 	<div class="col s7">
 		<img class="responsive-img urban-logo" src="assets/images/logo_Urban_Fut_5.png" width="250">
 	</div>
 	<div class="container row" id="app">
-		<input class="js-players" type="text" v-model="playerList" placeholder="Place comma separated list"></input>
+      <input class="js-players col s10 playerlist" type="text" v-model="playerList" placeholder="Insira lista de jogadores separados por virgula" :disabled="playerListDisabled"></input>
+      <input class="js-datepicker col s2 datepicker" type="text" v-model="dateOfGame" placeholder="Data do jogo" :disabled="dateDisabled"></input>
+      <div class="clearfix"></div>
 		<!-- <ol>
 			<li v-for="team in teams">
 				{{team.member}}
@@ -29,7 +31,7 @@
 		<table class="striped col s5 left" style="margin-right: 20px">
 			<thead>
 				<tr>
-					<th>Team One</th>
+					<th>Equipa Um</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -41,7 +43,7 @@
 		<table class="striped col s5 right">
 			<thead>
 				<tr>
-					<th>Team Two</th>
+					<th>Equipa Dois</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -51,12 +53,12 @@
 			</tbody>
 		</table>
 		<div class="clearfix"></div>
-		<button class="waves-effect waves-light btn" style="margin-top: 25px;" v-on:click="saveTeam">Save</button>	
+		<button class="waves-effect waves-light btn" style="margin-top: 25px;" v-on:click="saveTeam">Save</button>
 	</div>
 
 	<!-- Compiled and minified JavaScript -->
 	<script src="https://www.gstatic.com/firebasejs/5.8.2/firebase.js"></script>
-	
+
 	<script>
 		// Initialize Firebase
 		var config = {
