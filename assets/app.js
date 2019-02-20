@@ -25,11 +25,18 @@ var app = new Vue({
         return 'Não há jogadores suficientes!';
       }
 
+      console.log(this.teamOne);
+      console.log(this.teamTwo);
+
+      if (this.randomQueue.length > 0) {
+        this.noPlayers = false;
+        this.hasPlayers = true;
+
+        return this.randomQueue;
+      }
+
       this.noPlayers = false;
       this.hasPlayers = true;
-
-      this.teamOne = [];
-      this.teamTwo = [];
 
       this.newPlayerArray = this.randomize(players);
 
@@ -50,7 +57,7 @@ var app = new Vue({
       return this.newPlayerArray.join();
     },
     playerListDisabled: function () {
-      return this.newPlayerArray.length === 10;
+      return this.newPlayerArray.length > 10;
     },
     dateDisabled: function () {
       return this.dateOfGame.length > 0;
@@ -111,21 +118,22 @@ var app = new Vue({
 
       db.collection('teams').get().then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
-          var dateOfGame = doc.data().dateOfGame;
+          var dateOfGame = new Date(doc.data().dateOfGame);
           var today = new Date();
 
-          dateOfGame = new Date(dateOfGame);
-          console.log(dateOfGame);
-          console.log(today);
+          dateOfGame.setDate(dateOfGame.getDate() + 1);
 
-          if (today > dateOfGame) {
+          // dateOfGame = new Date(dateOfGame);
+          // console.log(dateOfGame);
+          // console.log(today);
+
+          if (today >= dateOfGame) {
             return;
           }
 
-          _this.teamOne = doc.data().equipa_a;
-          _this.teamTwo = doc.data().equipa_b;
+          _this.teamOne = doc.data().equipaA;
+          _this.teamTwo = doc.data().equipaB;
           _this.dateOfGame = doc.data().dateOfGame;
-          _this.teamTwo = doc.data().equipa_b;
           _this.playerList = doc.data().originalQueue;
           _this.randomQueue = doc.data().randomQueue;
         });

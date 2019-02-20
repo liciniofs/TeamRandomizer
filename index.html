@@ -53,7 +53,7 @@
 			</tbody>
 		</table>
 		<div class="clearfix"></div>
-		<button class="waves-effect waves-light btn" style="margin-top: 25px;" v-on:click="saveTeam">Save</button>
+		<button class="waves-effect waves-light btn" style="margin-top: 25px;" v-if="playerListDisabled" v-on:click="saveTeam">Save</button>
 	</div>
 
 	<!-- Compiled and minified JavaScript -->
