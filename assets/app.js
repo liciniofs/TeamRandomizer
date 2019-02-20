@@ -57,7 +57,7 @@ var app = new Vue({
       return this.newPlayerArray.join();
     },
     playerListDisabled: function () {
-      return this.newPlayerArray.length > 10;
+      return this.newPlayerArray.length > 10 || this.playerList.length;
     },
     dateDisabled: function () {
       return this.dateOfGame.length > 0;
