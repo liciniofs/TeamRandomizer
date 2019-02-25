@@ -25,3 +25,11 @@ table.striped>tbody>tr>td i {
 	left: 10px;
 	position: absolute;
 }
+
+table.striped.left>tbody>tr>td i {
+	color: steelblue;
+}
+
+table.striped.right>tbody>tr>td i {
+	color: orangered;
+}
