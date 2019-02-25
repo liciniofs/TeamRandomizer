@@ -37,7 +37,7 @@ var app = new Vue({
 
       this.newPlayerArray = this.randomize(players);
 
-      this.randomQueue = this.newPlayerArray.join();
+      this.randomQueue = this.newPlayerArray.join().slice(0, 5);
 
       var i; var j = 0;
       for (i = 0; i < this.newPlayerArray.length; i++) {
@@ -53,8 +53,8 @@ var app = new Vue({
 
       return this.newPlayerArray.join();
     },
-    playerListDisabled: function () {
-      return this.newPlayerArray.length > 10;
+    playerListDisabled: function () {      
+      return this.playerList.split(',').length > 10 || this.hasPlayers;
     },
     dateDisabled: function () {
       return this.dateOfGame.length > 0;
@@ -120,10 +120,6 @@ var app = new Vue({
 
           dateOfGame.setDate(dateOfGame.getDate() + 1);
 
-          // dateOfGame = new Date(dateOfGame);
-          // console.log(dateOfGame);
-          // console.log(today);
-
           if (today >= dateOfGame) {
             return;
           }
@@ -133,6 +129,7 @@ var app = new Vue({
           _this.dateOfGame = doc.data().dateOfGame;
           _this.playerList = doc.data().originalQueue;
           _this.randomQueue = doc.data().randomQueue;
+          _this.hasPlayers = false;
         });
       });
     });

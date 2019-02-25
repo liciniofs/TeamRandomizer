@@ -11,3 +11,7 @@
 .col.s2.datepicker {
   margin-left: 10px;
 }
+
+.row .col.s5 {
+	width: calc(50% - 10px);
+}
