@@ -8,6 +8,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- Compiled and minified CSS -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link rel="stylesheet" href="assets/css/players.css">
 
 </head>
@@ -36,7 +37,7 @@
 			</thead>
 			<tbody>
 				<tr v-for="member in teamOne">
-					<td>{{member.name}}</td>
+					<td><i class="material-icons">person</i>{{member.name}}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -48,7 +49,7 @@
 			</thead>
 			<tbody>
 				<tr v-for="member in teamTwo">
-					<td>{{member.name}}</td>
+					<td><i class="material-icons">person</i>{{member.name}}</td>
 				</tr>
 			</tbody>
 		</table>
