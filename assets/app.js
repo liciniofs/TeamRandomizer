@@ -25,9 +25,6 @@ var app = new Vue({
         return 'Não há jogadores suficientes!';
       }
 
-      console.log(this.teamOne);
-      console.log(this.teamTwo);
-
       if (this.randomQueue.length > 0) {
         this.noPlayers = false;
         this.hasPlayers = true;
@@ -57,7 +54,7 @@ var app = new Vue({
       return this.newPlayerArray.join();
     },
     playerListDisabled: function () {
-      return this.newPlayerArray.length > 10 || this.playerList.length;
+      return this.newPlayerArray.length > 10;
     },
     dateDisabled: function () {
       return this.dateOfGame.length > 0;
