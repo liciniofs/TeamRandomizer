@@ -37,7 +37,9 @@ var app = new Vue({
 
       this.newPlayerArray = this.randomize(players);
 
-      this.randomQueue = this.newPlayerArray.join().slice(0, 5);
+      this.randomQueue = this.newPlayerArray.join();
+
+      console.log(this.randomQueue);      
 
       var i; var j = 0;
       for (i = 0; i < this.newPlayerArray.length; i++) {
@@ -109,27 +111,29 @@ var app = new Vue({
       $(document).ready(function () {
         $('.js-datepicker').datepicker({
           format: 'dd / mmm / yyyy'
-        }
-        );
+        });
       });
 
       db.collection('teams').get().then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
           var dateOfGame = new Date(doc.data().dateOfGame);
           var today = new Date();
+          var gameExpired = today >= dateOfGame;
 
-          dateOfGame.setDate(dateOfGame.getDate() + 1);
+          // dateOfGame.setDate(dateOfGame.getDate() + 1);
 
-          if (today >= dateOfGame) {
-            return;
-          }
-
-          _this.teamOne = doc.data().equipaA;
-          _this.teamTwo = doc.data().equipaB;
-          _this.dateOfGame = doc.data().dateOfGame;
-          _this.playerList = doc.data().originalQueue;
-          _this.randomQueue = doc.data().randomQueue;
+          console.log(today);
+          console.log(dateOfGame);
+          console.log(today >= dateOfGame);          
+          
+          _this.teamOne = !gameExpired ? doc.data().equipaA : [];
+          _this.teamTwo = !gameExpired ? doc.data().equipaB : [];
+          _this.dateOfGame = !gameExpired ? doc.data().dateOfGame : '';
+          _this.playerList = !gameExpired ? doc.data().originalQueue : '';
+          _this.randomQueue = !gameExpired ? doc.data().randomQueue : '';
           _this.hasPlayers = false;
+
+          console.log(_this.randomQueue);          
         });
       });
     });
