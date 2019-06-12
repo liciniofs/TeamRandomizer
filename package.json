@@ -39,6 +39,7 @@
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
     "vue": "^2.6.10",
+    "vue-class-component": "^7.1.0",
     "vuefire": "^2.0.0",
     "watchify": "^3.11.1"
   }

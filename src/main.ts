@@ -1,4 +1,4 @@
-import { auth } from "./auth/auth";
-import { home } from "./app/home";
+import { auth } from './auth/auth';
+import { home } from './app/home';
 
 home();
