@@ -33,6 +33,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
     "gulp-uglify": "^3.0.2",
+    "gulp-watch": "^5.0.1",
     "jquery": "^3.4.1",
     "tsify": "^4.0.1",
     "typescript": "^3.5.1",
@@ -42,5 +43,8 @@
     "vue-class-component": "^7.1.0",
     "vuefire": "^2.0.0",
     "watchify": "^3.11.1"
+  },
+  "browser": {
+    "vue": "vue/dist/vue.common.js"
   }
 }

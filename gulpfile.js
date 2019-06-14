@@ -1,8 +1,9 @@
-var gulp = require('gulp');
 var browserify = require('browserify');
+var gulp = require('gulp');
 var source = require('vinyl-source-stream');
-var tsify = require('tsify');
 var sourcemaps = require('gulp-sourcemaps');
+var watch = require('gulp-watch');
+var tsify = require('tsify');
 var buffer = require('vinyl-buffer');
 var paths = {
   pages: ['src/*.html']
@@ -13,7 +14,7 @@ gulp.task('copy-html', function () {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', gulp.series(gulp.parallel('copy-html'), function () {
+gulp.task('typescript', function () {
   return browserify({
     basedir: '.',
     debug: true,
@@ -32,4 +33,10 @@ gulp.task('default', gulp.series(gulp.parallel('copy-html'), function () {
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('dist'));
-}));
+});
+
+gulp.task('build', gulp.series(gulp.parallel('typescript')));
+
+gulp.task('default', function () {
+  return gulp.watch('./src/**/*.ts', gulp.series('build'));
+});
