@@ -55,6 +55,8 @@
 		</table>
 		<div class="clearfix"></div>
 		<button class="waves-effect waves-light btn" style="margin-top: 25px;" v-if="!dateDisabled" v-on:click="saveTeam">Save</button>
+		<button class="waves-effect deep-orange darken-2 waves-light btn" style="margin-top: 25px;" v-if="!dateDisabled" v-on:click="removeLast">Remove Last</button>
+		<button class="waves-effect light-blue darken-2 waves-light btn" style="margin-top: 25px;" v-if="!dateDisabled" v-on:click="manualRandomize">Shuffle</button>
 	</div>
 
 	<!-- Compiled and minified JavaScript -->

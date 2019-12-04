@@ -13,8 +13,12 @@ const home = Vue.extend({
         { member: 'one,two,three,four,five' }
       ],
       db: firebase.firestore(),
-      teamOne: [],
-      teamTwo: [],
+      teamOne: [
+        { name: '' },
+      ],
+      teamTwo: [
+        { name: '' }
+      ],
       newPlayerArray: [],
       newUser: {
         email: '',
@@ -46,43 +50,47 @@ const home = Vue.extend({
       })
     },
     returnPlayerTeams(): any {
-      var players = this.playerList.split(',');
+      let players = this.playerList.split(',');
 
       if (players.length < 10) {
+        this.teamOne = [];
+        this.teamTwo = [];
+      }
+      
+      if (this.playerList.length < 10) {
         this.noPlayers = true;
         return 'Não há jogadores suficientes!';
       }
-
-      if (this.randomQueue.length > 0) {
-        this.noPlayers = false;
-        this.hasPlayers = true;
-
-        return this.randomQueue;
-      }
-
+      
       this.noPlayers = false;
       this.hasPlayers = true;
 
-      this.newPlayerArray = this.randomize(players);
-
-      this.randomQueue = this.newPlayerArray.join();
-
-      var i; var j = 0;
-      for (i = 0; i < this.newPlayerArray.length; i++) {
-        if (i < 5) {
-          this.$set(this.teamOne[i], 'name', this.newPlayerArray[i]);
-          // this.teamOne.push({ name: this.newPlayerArray[i] });
-        } else {
-          this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
-          // this.teamTwo.push({ name: this.newPlayerArray[i] });
-          j++;
-        }
+      if( this.teamOne.length < 5 && this.teamTwo.length < 5 ) {
+        return 'Existem jogadores suficientes! Clique em shuffle para criar as equipas!';
+      }
+      
+      if (this.newPlayerArray.length > 0) {
+        this.noPlayers = false;
+        this.hasPlayers = true;
+        return this.newPlayerArray.join();
       }
 
+      // var i; var j = 0;
+      // for (i = 0; i < this.newPlayerArray.length; i++) {
+      //   if (i < 5) {
+      //     // this.$set(this.teamOne[i], 'name', this.newPlayerArray[i]);
+      //     this.teamOne.push({ name: this.newPlayerArray[i] });
+      //   } else {
+      //     // this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
+      //     this.teamTwo.push({ name: this.newPlayerArray[i] });
+      //     j++;
+      //   }
+      // }
+      // alert(this.newPlayerArray)
       return this.newPlayerArray.join();
     },
-    playerListDisabled(): any {
-      return this.playerList.split(',').length > 10 || this.hasPlayers;
+    playerListDisabled(): any {      
+      return this.playerList.split(',').length === 10 && this.teamOne.length === 5 && this.teamTwo.length === 5 ;
     },
     dateDisabled(): any {
       let dateOfGame: any = this.dateOfGame;
@@ -90,6 +98,29 @@ const home = Vue.extend({
     }
   },
   methods: {
+    manualRandomize: function() {
+      this.newPlayerArray = this.randomize(this.playerList.split(','));
+
+      if(this.teamOne.length >= 5 || this.teamTwo.length >= 5) {
+        this.teamOne = [];
+        this.teamTwo = [];
+      }
+
+      var i; var j = 0;
+      for (i = 0; i < this.newPlayerArray.length; i++) {
+        if (i < 5) {
+          // this.$set(this.teamOne[i], 'name', this.newPlayerArray[i]);
+          this.teamOne.push({ name: this.newPlayerArray[i] });
+        } else {
+          // this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
+          this.teamTwo.push({ name: this.newPlayerArray[i] });
+          j++;
+        }
+      }
+      
+      // alert(this.newPlayerArray);
+      return this.newPlayerArray;
+    },
     randomize: function (data: any): any {
       var currentIndex = data.length; var temporaryValue; var randomIndex;
 
@@ -107,6 +138,15 @@ const home = Vue.extend({
 
       this.newPlayerArray = data;
       return data;
+    },
+    removeLast(): any {
+      let players = this.playerList.split(',');
+
+      players.splice(-1,1)
+
+      // console.log(players.join(','));
+      
+      this.playerList = players.join();
     },
     addUser: function () {
       if (this.isValid) {

@@ -72539,8 +72539,8 @@ var home = _vue2.default.extend({
             playerList: '',
             teams: [{ member: 'one,two,three,four,five' }, { member: 'one,two,three,four,five' }],
             db: firebase.firestore(),
-            teamOne: [],
-            teamTwo: [],
+            teamOne: [{ name: '' }],
+            teamTwo: [{ name: '' }],
             newPlayerArray: [],
             newUser: {
                 email: '',
@@ -72576,34 +72576,39 @@ var home = _vue2.default.extend({
         returnPlayerTeams: function returnPlayerTeams() {
             var players = this.playerList.split(',');
             if (players.length < 10) {
+                this.teamOne = [];
+                this.teamTwo = [];
+            }
+            if (this.playerList.length < 10) {
                 this.noPlayers = true;
                 return 'Não há jogadores suficientes!';
             }
-            if (this.randomQueue.length > 0) {
-                this.noPlayers = false;
-                this.hasPlayers = true;
-                return this.randomQueue;
-            }
             this.noPlayers = false;
             this.hasPlayers = true;
-            this.newPlayerArray = this.randomize(players);
-            this.randomQueue = this.newPlayerArray.join();
-            var i;
-            var j = 0;
-            for (i = 0; i < this.newPlayerArray.length; i++) {
-                if (i < 5) {
-                    this.$set(this.teamOne[i], 'name', this.newPlayerArray[i]);
-                    // this.teamOne.push({ name: this.newPlayerArray[i] });
-                } else {
-                    this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
-                    // this.teamTwo.push({ name: this.newPlayerArray[i] });
-                    j++;
-                }
+            if (this.teamOne.length < 5 && this.teamTwo.length < 5) {
+                return 'Existem jogadores suficientes! Clique em shuffle para criar as equipas!';
             }
+            if (this.newPlayerArray.length > 0) {
+                this.noPlayers = false;
+                this.hasPlayers = true;
+                return this.newPlayerArray.join();
+            }
+            // var i; var j = 0;
+            // for (i = 0; i < this.newPlayerArray.length; i++) {
+            //   if (i < 5) {
+            //     // this.$set(this.teamOne[i], 'name', this.newPlayerArray[i]);
+            //     this.teamOne.push({ name: this.newPlayerArray[i] });
+            //   } else {
+            //     // this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
+            //     this.teamTwo.push({ name: this.newPlayerArray[i] });
+            //     j++;
+            //   }
+            // }
+            // alert(this.newPlayerArray)
             return this.newPlayerArray.join();
         },
         playerListDisabled: function playerListDisabled() {
-            return this.playerList.split(',').length > 10 || this.hasPlayers;
+            return this.playerList.split(',').length === 10 && this.teamOne.length === 5 && this.teamTwo.length === 5;
         },
         dateDisabled: function dateDisabled() {
             var dateOfGame = this.dateOfGame;
@@ -72611,6 +72616,27 @@ var home = _vue2.default.extend({
         }
     },
     methods: {
+        manualRandomize: function manualRandomize() {
+            this.newPlayerArray = this.randomize(this.playerList.split(','));
+            if (this.teamOne.length >= 5 || this.teamTwo.length >= 5) {
+                this.teamOne = [];
+                this.teamTwo = [];
+            }
+            var i;
+            var j = 0;
+            for (i = 0; i < this.newPlayerArray.length; i++) {
+                if (i < 5) {
+                    // this.$set(this.teamOne[i], 'name', this.newPlayerArray[i]);
+                    this.teamOne.push({ name: this.newPlayerArray[i] });
+                } else {
+                    // this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
+                    this.teamTwo.push({ name: this.newPlayerArray[i] });
+                    j++;
+                }
+            }
+            // alert(this.newPlayerArray);
+            return this.newPlayerArray;
+        },
         randomize: function randomize(data) {
             var currentIndex = data.length;
             var temporaryValue;
@@ -72628,6 +72654,12 @@ var home = _vue2.default.extend({
             this.newPlayerArray = data;
             return data;
         },
+        removeLast: function removeLast() {
+            var players = this.playerList.split(',');
+            players.splice(-1, 1);
+            // console.log(players.join(','));
+            this.playerList = players.join();
+        },
         addUser: function addUser() {
             if (this.isValid) {
                 // usersRef.push(this.newUser)
@@ -72640,8 +72672,7 @@ var home = _vue2.default.extend({
         },
         saveTeam: function saveTeam() {
             this.dateOfGame = (0, _jquery2.default)('.js-datepicker').val();
-            var timestamp = new Date().getTime() + '';
-            timestamp = timestamp.toString();
+            var timestamp = new Date().getTime().toString();
             this.db.collection('teams').doc(timestamp).set({
                 dateOfSubmission: new Date(),
                 dateOfGame: this.dateOfGame,
