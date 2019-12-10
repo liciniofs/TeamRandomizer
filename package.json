@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/liciniofs/TeamRandomizer#readme",
   "devDependencies": {
-    "@types/jquery": "^3.3.29",
+    "@types/jquery": "^3.3.31",
+    "@types/jquery.ui.datetimepicker": "^0.3.29",
+    "@types/materialize-css": "^1.0.7",
     "babel-core": "^6.26.3",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^8.0.0",
@@ -35,6 +37,9 @@
     "gulp-uglify": "^3.0.2",
     "gulp-watch": "^5.0.1",
     "jquery": "^3.4.1",
+    "jquery-datepicker": "^1.12.3",
+    "jquery-ui": "^1.12.1",
+    "materialize-css": "^1.0.0",
     "tsify": "^4.0.1",
     "typescript": "^3.5.1",
     "vinyl-buffer": "^1.0.1",
@@ -46,5 +51,6 @@
   },
   "browser": {
     "vue": "vue/dist/vue.common.js"
-  }
+  },
+  "dependencies": {}
 }

@@ -72535,6 +72535,7 @@ var home = _vue2.default.extend({
     // el: '#app',
     data: function data() {
         return {
+            isHidden: false,
             emailRE: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
             playerList: '',
             teams: [{ member: 'one,two,three,four,five' }, { member: 'one,two,three,four,five' }],
@@ -72553,8 +72554,21 @@ var home = _vue2.default.extend({
             noPlayers: true,
             originalQueue: '',
             randomQueue: '',
-            dateOfGame: typeof (0, _jquery2.default)('.js-datepicker').val() !== 'undefined' ? (0, _jquery2.default)('.js-datepicker').val() : '',
-            currentTeams: {}
+            dateOfGame: new Date(),
+            dateOfGameText: '',
+            currentTeams: {},
+            userEmail: 'Não está autenticado',
+            emailAddress: '',
+            password: '',
+            userDisplayName: '',
+            userEmailVerified: false,
+            userPhotoURL: '',
+            userIsAnonymous: false,
+            userUid: '',
+            userProviderData: [],
+            currentUser: [],
+            isLogged: false,
+            activeGame: false
         };
     },
     computed: {
@@ -72579,43 +72593,49 @@ var home = _vue2.default.extend({
                 this.teamOne = [];
                 this.teamTwo = [];
             }
-            if (this.playerList.length < 10) {
+            if (players.length < 10) {
                 this.noPlayers = true;
                 return 'Não há jogadores suficientes!';
             }
             this.noPlayers = false;
             this.hasPlayers = true;
-            if (this.teamOne.length < 5 && this.teamTwo.length < 5) {
+            if (players.length === 10 && this.teamOne.length < 5 && this.teamTwo.length < 5) {
                 return 'Existem jogadores suficientes! Clique em shuffle para criar as equipas!';
             }
             if (this.newPlayerArray.length > 0) {
                 this.noPlayers = false;
                 this.hasPlayers = true;
-                return this.newPlayerArray.join();
+                this.randomQueue = this.newPlayerArray.join();
             }
-            // var i; var j = 0;
-            // for (i = 0; i < this.newPlayerArray.length; i++) {
-            //   if (i < 5) {
-            //     // this.$set(this.teamOne[i], 'name', this.newPlayerArray[i]);
-            //     this.teamOne.push({ name: this.newPlayerArray[i] });
-            //   } else {
-            //     // this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
-            //     this.teamTwo.push({ name: this.newPlayerArray[i] });
-            //     j++;
-            //   }
-            // }
-            // alert(this.newPlayerArray)
-            return this.newPlayerArray.join();
+            return this.randomQueue;
         },
         playerListDisabled: function playerListDisabled() {
             return this.playerList.split(',').length === 10 && this.teamOne.length === 5 && this.teamTwo.length === 5;
         },
+        userIsHidden: function userIsHidden() {
+            console.log(this.isHidden);
+            if (this.isHidden) {
+                return 'isHidden';
+            }
+            return '!isHidden';
+        },
         dateDisabled: function dateDisabled() {
-            var dateOfGame = this.dateOfGame;
-            return dateOfGame.length > 0;
+            // let dateOfGame: any = this.dateOfGame;
+            // return dateOfGame.length > 0;
         }
     },
     methods: {
+        authenticate: function authenticate() {
+            var _this = this;
+            console.log(this.emailAddress + ' | ' + this.password);
+            var user = firebase.auth().signInWithEmailAndPassword(this.emailAddress, this.password).catch(function (error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode);
+                console.log(errorMessage);
+            });
+        },
         manualRandomize: function manualRandomize() {
             this.newPlayerArray = this.randomize(this.playerList.split(','));
             if (this.teamOne.length >= 5 || this.teamTwo.length >= 5) {
@@ -72626,11 +72646,11 @@ var home = _vue2.default.extend({
             var j = 0;
             for (i = 0; i < this.newPlayerArray.length; i++) {
                 if (i < 5) {
-                    // this.$set(this.teamOne[i], 'name', this.newPlayerArray[i]);
-                    this.teamOne.push({ name: this.newPlayerArray[i] });
+                    this.$set(this.teamOne, i, { name: this.newPlayerArray[i] });
+                    // this.teamOne.push({ name: this.newPlayerArray[i] });
                 } else {
-                    // this.$set(this.teamTwo[j], 'name', this.newPlayerArray[i]);
-                    this.teamTwo.push({ name: this.newPlayerArray[i] });
+                    this.$set(this.teamTwo, j, { name: this.newPlayerArray[i] });
+                    // this.teamTwo.push({ name: this.newPlayerArray[i] });
                     j++;
                 }
             }
@@ -72657,7 +72677,6 @@ var home = _vue2.default.extend({
         removeLast: function removeLast() {
             var players = this.playerList.split(',');
             players.splice(-1, 1);
-            // console.log(players.join(','));
             this.playerList = players.join();
         },
         addUser: function addUser() {
@@ -72670,12 +72689,41 @@ var home = _vue2.default.extend({
         removeUser: function removeUser(user) {
             // usersRef.child(user['.key']).remove()
         },
+        getCurrentGame: function getCurrentGame() {
+            var _this = this;
+            this.db.collection('teams').get().then(function (querySnapshot) {
+                querySnapshot.forEach(function (doc) {
+                    // console.log(doc.data());
+                    var dateOfGame = new Date(doc.data().dateOfGame);
+                    // console.log(dateOfGame);
+                    // let dateOfGame = _this.getNextWednesday();    
+                    var today = new Date();
+                    var gameExpired = today >= dateOfGame;
+                    _this.getNextWednesday();
+                    dateOfGame.setDate(dateOfGame.getDate() + 1);
+                    var d = new Date(doc.data().dateOfGame);
+                    var options = { 'month': 'long', 'day': '2-digit', 'year': 'numeric' };
+                    // _this.dateOfGameText = d.toLocaleString('pt-PT', options);
+                    _this.teamOne = !gameExpired ? doc.data().equipaA : [];
+                    _this.teamTwo = !gameExpired ? doc.data().equipaB : [];
+                    _this.dateOfGameText = !gameExpired ? d.toLocaleString('pt-PT', options) : '';
+                    _this.playerList = !gameExpired ? doc.data().originalQueue : '';
+                    _this.randomQueue = !gameExpired ? doc.data().randomQueue : 'teste';
+                    _this.activeGame = !gameExpired;
+                    _this.hasPlayers = false;
+                });
+            });
+        },
         saveTeam: function saveTeam() {
-            this.dateOfGame = (0, _jquery2.default)('.js-datepicker').val();
+            var dateOfGame = (0, _jquery2.default)('.js-datepicker').val();
             var timestamp = new Date().getTime().toString();
+            // let newDateOfGame = dateOfGame.toString();
+            // console.log(d.toUTCString());
+            this.dateOfGame = this.getNextWednesday();
+            // console.log(this.dateOfGame);
             this.db.collection('teams').doc(timestamp).set({
                 dateOfSubmission: new Date(),
-                dateOfGame: this.dateOfGame,
+                dateOfGame: this.dateOfGame.toUTCString(),
                 originalQueue: this.playerList,
                 randomQueue: this.randomQueue,
                 equipaA: this.teamOne,
@@ -72685,39 +72733,62 @@ var home = _vue2.default.extend({
             }).catch(function (error) {
                 console.error('Error writing document: ', error);
             });
+            this.getCurrentGame();
+        },
+        isLoggedIn: function isLoggedIn() {
+            var _this = this;
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (!user) {
+                    console.log('not logged in');
+                    _this.isLogged = false;
+                    return false;
+                }
+                _this.userEmail = user.email;
+                _this.isLogged = true;
+                return true;
+            });
+        },
+        logOut: function logOut() {
+            firebase.auth().signOut();
+            this.isHidden = false;
+        },
+        getNextWednesday: function getNextWednesday() {
+            var d = new Date();
+            d.setDate(d.getDate() + (3 + 7 - d.getDay()) % 7);
+            if (d.getDay() == 3 && d.getHours() > 19 && d.getMinutes() > 30) {
+                d.setDate(d.getDate() + (3 + 7 - d.getDay()));
+            }
+            // var options = {'month': 'long', 'day': '2-digit', 'year': 'numeric'};
+            var options = { 'month': 'long', 'day': '2-digit', 'year': 'numeric' };
+            this.dateOfGame = d;
+            // console.log(new Date('Wed, 11 Dec 2019 17:40:44 GMT'));
+            // this.dateOfGameText = d.toLocaleString('pt-PT', options);
+            // var options = {'weekday': 'long', 'month': 'long', 'day': '2-digit', 'year': 'numeric'};
+            // var date = d.toLocaleString('pt-PT', options);
+            // console.log(d);
+            return d;
         }
     },
     mounted: function mounted() {
-        var _this = this;
         var timestamp = new Date().getTime().toString();
         timestamp = timestamp.toString();
+        this.isLoggedIn();
         this.$nextTick(function () {
             (0, _jquery2.default)(document).ready(function () {
-                // $('.js-datepicker').datepicker({
-                //   format: 'dd / mmm / yyyy'
-                // });
-            });
-            this.db.collection('teams').get().then(function (querySnapshot) {
-                querySnapshot.forEach(function (doc) {
-                    var dateOfGame = new Date(doc.data().dateOfGame);
-                    var today = new Date();
-                    var gameExpired = today >= dateOfGame;
-                    dateOfGame.setDate(dateOfGame.getDate() + 1);
-                    // console.log(today);
-                    // console.log(dateOfGame);
-                    // console.log(today >= dateOfGame);
-                    _this.teamOne = !gameExpired ? doc.data().equipaA : [];
-                    _this.teamTwo = !gameExpired ? doc.data().equipaB : [];
-                    _this.dateOfGame = !gameExpired ? doc.data().dateOfGame : '';
-                    _this.playerList = !gameExpired ? doc.data().originalQueue : '';
-                    _this.randomQueue = !gameExpired ? doc.data().randomQueue : '';
-                    _this.hasPlayers = false;
-                    console.log(_this.randomQueue);
-                });
+                // console.log(this);
+                // $('.js-datepicker').datepicker();
             });
         });
+        this.getCurrentGame();
     }
 });
+// import "jquery-ui/ui/widgets/datepicker";
+// import 'jquery-datepicker';
+// import 'materialize-css';
+// import { Datepicker } from 'materialize-css/dist/js/materialize.js';
+// import 'materialize-css/dist/js/materialize.js';
+// import 'materialize-css/js/component.js';
+// import 'materialize-css/js/datepicker.js';
 exports.default = home;
 
 },{"firebase":13,"jquery":15,"vue":20}],23:[function(require,module,exports){
@@ -72741,7 +72812,8 @@ var config = {
     databaseURL: "https://urbanfut5teams.firebaseio.com",
     projectId: "urbanfut5teams"
 };
-// import { auth } from './auth/auth';
+// import $ from "jquery";
+// import 'materialize-css/dist/js/materialize.min.js';
 
 firebase.initializeApp(config);
 new _home2.default().$mount('#app');

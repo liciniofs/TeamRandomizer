@@ -4,6 +4,10 @@
 	display: block;
 }
 
+.m-bottom {
+	margin-bottom: 25px;
+}
+
 .col.s10.playerlist {
   width: calc(83.3333333333% - 10px);
 }

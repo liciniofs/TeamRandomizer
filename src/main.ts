@@ -1,5 +1,6 @@
 import * as firebase from 'firebase';
-// import { auth } from './auth/auth';
+// import $ from "jquery";
+// import 'materialize-css/dist/js/materialize.min.js';
 import Home from './app/home';
 
 let config = {
